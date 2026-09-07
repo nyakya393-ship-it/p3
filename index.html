@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<title>Splatoon 3 Weapon Analyzer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div>
+        <div class="logo">WEAPON ANALYZER</div>
+        <div class="subtitle">Splatoon 3 Weapon Performance</div>
+    </div>
+    <div id="dataStatus" class="status">DATA CHECKING...</div>
+</header>
+
+<main>
+
+    <section class="selector-panel">
+
+        <div class="search-row">
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="ブキを検索..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div id="categoryList" class="categories">
+            <button class="category active" data-category="all">すべて</button>
+            <button class="category" data-category="シューター">シューター</button>
+            <button class="category" data-category="ブラスター">ブラスター</button>
+            <button class="category" data-category="ローラー">ローラー</button>
+            <button class="category" data-category="フデ">フデ</button>
+            <button class="category" data-category="チャージャー">チャージャー</button>
+            <button class="category" data-category="スロッシャー">スロッシャー</button>
+            <button class="category" data-category="スピナー">スピナー</button>
+            <button class="category" data-category="マニューバー">マニューバー</button>
+            <button class="category" data-category="シェルター">シェルター</button>
+            <button class="category" data-category="ストリンガー">ストリンガー</button>
+            <button class="category" data-category="ワイパー">ワイパー</button>
+        </div>
+
+        <div class="weapon-count">
+            <span id="weaponCount">0</span> WEAPONS
+        </div>
+
+        <div id="weaponList" class="weapon-list"></div>
+
+    </section>
+
+    <section id="content" class="content">
+
+        <div id="loading" class="state">
+            <div class="loader"></div>
+            <p>武器データを読み込んでいます...</p>
+        </div>
+
+        <div id="error" class="state hidden">
+            <h2>DATA ERROR</h2>
+            <p id="errorText"></p>
+            <button id="retryButton">再読み込み</button>
+        </div>
+
+        <div id="weaponView" class="hidden">
+
+            <section class="weapon-header">
+
+                <div class="weapon-image-area">
+                    <img id="weaponImage" alt="">
+                    <div id="imageFallback">NO IMAGE</div>
+                </div>
+
+                <div class="weapon-title">
+                    <div id="weaponCategory" class="weapon-category"></div>
+                    <h1 id="weaponName"></h1>
+                    <div id="weaponEnglish" class="weapon-english"></div>
+                    <div id="weaponKit" class="kit"></div>
+                </div>
+
+            </section>
+
+
+            <!-- 射程 -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    <span>RANGE</span>
+                    <small>射程</small>
+                </div>
+
+                <div class="range-visual">
+
+                    <div class="range-scale">
+                        <span>0</span>
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>6</span>
+                    </div>
+
+                    <div class="range-track">
+
+                        <div id="rangeEffective" class="range-effective"></div>
+                        <div id="rangePaint" class="range-paint"></div>
+
+                        <div id="blastArea" class="blast-area">
+                            <div id="blastCircle"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="range-labels">
+                        <div>
+                            <strong id="effectiveRange">--</strong>
+                            <span>有効射程</span>
+                        </div>
+
+                        <div>
+                            <strong id="paintRange">--</strong>
+                            <span>塗り射程</span>
+                        </div>
+
+                        <div>
+                            <strong id="blastRange">--</strong>
+                            <span>爆風射程</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ダメージ -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    <span>DAMAGE</span>
+                    <small>ダメージ</small>
+                </div>
+
+                <div class="damage-layout">
+
+                    <div class="damage-main">
+
+                        <div class="damage-number">
+                            <span id="maxDamage">--</span>
+                            <small>MAX</small>
+                        </div>
+
+                        <div class="damage-bar">
+                            <div id="damageFill"></div>
+                        </div>
+
+                        <div class="damage-min">
+                            <span id="minDamage">--</span>
+                            <small>MIN</small>
+                        </div>
+
+                    </div>
+
+                    <div class="damage-info">
+                        <div>
+                            <span>確定数</span>
+                            <strong id="kills">--</strong>
+                        </div>
+
+                        <div>
+                            <span>連射</span>
+                            <strong id="fireRate">--</strong>
+                        </div>
+
+                        <div>
+                            <span>DPS</span>
+                            <strong id="dps">--</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ダメージ減衰 -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    <span>DAMAGE FALLOFF</span>
+                    <small>距離減衰</small>
+                </div>
+
+                <div class="chart-box">
+                    <svg id="falloffChart"
+                         viewBox="0 0 700 300"
+                         preserveAspectRatio="none">
+                    </svg>
+                </div>
+
+                <div id="falloffNote" class="note"></div>
+
+            </section>
+
+
+            <!-- ブラスター -->
+
+            <section id="blastPanel" class="panel hidden">
+
+                <div class="panel-title">
+                    <span>BLAST</span>
+                    <small>爆風</small>
+                </div>
+
+                <div class="blast-visual">
+
+                    <div class="blast-line">
+                        <div class="blast-origin"></div>
+                        <div class="blast-end"></div>
+                        <div id="blastCircleBig"></div>
+                    </div>
+
+                </div>
+
+                <div class="blast-stats">
+
+                    <div>
+                        <span>直撃ダメージ</span>
+                        <strong id="directDamage">--</strong>
+                    </div>
+
+                    <div>
+                        <span>爆風ダメージ</span>
+                        <strong id="blastDamage">--</strong>
+                    </div>
+
+                    <div>
+                        <span>爆風半径</span>
+                        <strong id="blastRadius">--</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- 基本性能 -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    <span>SPECIFICATIONS</span>
+                    <small>詳細性能</small>
+                </div>
+
+                <div id="specifications" class="spec-grid"></div>
+
+            </section>
+
+
+            <section class="wiki-section">
+
+                <a
+                    id="wikiLink"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    Wikiで詳細を見る →
+                </a>
+
+            </section>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="app.js"></script>
+
+</body>
+</html>
